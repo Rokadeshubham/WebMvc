@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using MVCCRUD.Models;
+using System.Data.Entity;
+
+namespace MVCCRUD.Controllers
+{
+    public class HomeController : Controller
+    {
+        // GET: Home
+        StudentEntities entities = new StudentEntities();
+        public ActionResult Index()
+        {
+            return View(entities.Students.ToList());
+        }
+
+        public ActionResult Create()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult Create(FormCollection fm)
+        {
+            if (ModelState.IsValid)
+            {
+
+                Student s = new Student();
+                s.FirstName = fm["FirstName"];
+                s.LastName = fm["LastName"];
+                s.Subject = fm["Subject"];
+                entities.Students.Add(s);
+                entities.SaveChanges();
+                return RedirectToAction("Index");
+
+            }
+            return View();
+
+           
+
+        }
+
+
+        public ActionResult Edit(int id)
+        {
+            var editStudent = entities.Students.Where(s => s.RollNo == id).FirstOrDefault();
+            return View(editStudent);
+
+        }
+        [HttpPost]
+        public ActionResult Edit(Student student)
+        {
+            entities.Entry(student).State = EntityState.Modified;
+            entities.SaveChanges();
+            return View();
+        }
+
+        public ActionResult Details(int id)
+        {
+            Student detail = entities.Students.Where(s => s.RollNo == id).FirstOrDefault();
+            return View(detail);
+        }
+
+        public ActionResult Delete(int id)
+        {
+            Student s = entities.Students.Find(id);
+            entities.Students.Remove(s);
+            entities.SaveChanges();
+            return RedirectToAction("Index");
+        }
+    }
+}
