@@ -1,0 +1,75 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using LoginApp.Models;
+
+namespace LoginApp.Controllers
+{
+    public class HomeController : Controller
+    {
+        LoginInfoEntities entities = new LoginInfoEntities();
+        // GET: Home
+        public ActionResult Login()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult Login(LoginInfo info)
+        {
+            {
+                if (ModelState.IsValid)
+                {
+                    var user = entities.LoginInfoes.FirstOrDefault(u => u.Username.Equals(info.Username) && u.Password.Equals(info.Password));
+
+                    if (user != null)
+                    {
+                        var role = entities.LoginInfoes.FirstOrDefault(u => u.Username.Equals(info.Username) && u.Password.Equals(info.Password)).Role;
+
+                        if (role == "User")
+                        {
+                            Session["UserId"] = user.Id;
+                            Session["userName"] = user.Username;
+                            return RedirectToAction("Userpage");
+                        }
+                        else
+                        {
+                            Session["UserId"] = user.Id;
+                            Session["userName"] = user.Username;
+                            return RedirectToAction("Admin");
+                        }
+                        
+                    }
+                    
+                    else
+                    {
+                        return RedirectToAction("Loginfail");
+                    }
+                }
+                
+
+
+                return View();
+            }
+        }
+
+        public ActionResult Userpage()
+        {
+            return View();
+        }
+        public ActionResult Admin()
+        {
+            return View();
+        }
+        public ActionResult Loginfail()
+        {
+            return View();
+        }
+        public ActionResult Logout()
+        {
+            Session.Abandon();
+            return View("Login");
+        }
+    }
+}
